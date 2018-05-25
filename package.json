@@ -1,0 +1,19 @@
+{
+  "name": "tba-bot",
+  "version": "0.1.0",
+  "description": "A hook.io service",
+  "main": "main.js",
+  "scripts": {},
+  "repository": "",
+  "keywords": [
+    "tba",
+    "FRC",
+    "hook"
+  ],
+  "author": "Team401",
+  "license": "GPL-3.0",
+  "devDependencies": {},
+  "dependencies": {
+    "tba-api-storm": "^1.1.0"
+  }
+}
