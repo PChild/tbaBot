@@ -28,7 +28,7 @@ function cap(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-function status(team) {
+function teamStatus(team) {
   let currentEvent = false;
   let currentDate = new Date('2018-03-08');
 
@@ -161,9 +161,19 @@ function teamInfo(team) {
   });
 }
 
-//teamInfo(254).then(function(result) {console.log(result)});
-//seasonEvents(254).then(function(result) {console.log(result)});
-//teamRecord(254).then(function(result) {console.log(result)});
-status(254).then(function (result) {
-  console.log(result)
+
+function allInfo(team) {
+	let info = teamInfo(team);
+	let record = teamRecord(team);
+	let events = seasonEvents(team);
+	let awards = teamAwards(team);
+	let status = teamStatus(team);
+	
+	return Promise.all([info, record, events, awards, status]).then(function (combinedInfo) {
+		return combinedInfo[0] + "\n\n" + combinedInfo[1] + "\n\n" + combinedInfo[2] + "\n\n" + combinedInfo[3] + "\n" + combinedInfo[4];
+	});
+}
+
+allInfo(254).then(function (result) {
+	console.log(result);
 });

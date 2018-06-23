@@ -25,7 +25,7 @@ module['exports'] = function tbaBot(hook) {
   }
 
   let taskToRun;
-
+  
   switch (commands[0]) {
   case "record":
     taskToRun = commands.length >= 2 ? teamRecord(commands[1], commands[2]) : teamRecord(commands[1]);
@@ -34,7 +34,7 @@ module['exports'] = function tbaBot(hook) {
     taskToRun = commands.length >= 2 ? teamAwards(commands[1], commands[2]) : teamAwards(commands[1]);
     break;
   case "status":
-    taskToRun = status(commands[1]);
+    taskToRun = teamStatus(commands[1]);
     break;
   case "events":
     taskToRun = commands.length >= 2 ? seasonEvents(commands[1], commands[2]) : seasonEvents(commands[1]);
@@ -42,12 +42,15 @@ module['exports'] = function tbaBot(hook) {
   case "info":
     taskToRun = teamInfo(commands[1]);
     break;
+  case "all":
+  	taskToRun = allInfo(commands[1]);
+    break;
   }
-
+  
   taskToRun.then(function (results) {
-    options.json.text = results;
-    sendReq();
-  });
+        options.json.text = results + "\n\r" + "\n\r" + "\n\r";
+        sendReq();
+      });
 
 
 };
@@ -60,14 +63,14 @@ function cap(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-function status(team) {
+function teamStatus(team) {
   let currentEvent = false;
   let currentDate = new Date();
 
   return client.getTeamEventList(team, currentYear()).then(function (events) {
     for (let i in events) {
       let startDate = new Date(events[i].start_date);
-      let endDate = new Date(events[i].end_date);
+      let endDate = new Date(events[i].end_date + " 11:59 PM");
       let currentPlay = currentDate >= startDate && currentDate <= endDate;
 
       if (currentPlay) {
@@ -178,7 +181,7 @@ function teamInfo(team) {
   let baseProm = client.getTeam(team);
   let socialProm = client.getTeamSocialMedia(team);
 
-  return Promise.all([baseProm, socialProm]).then(function (fullInfo) {
+   return Promise.all([baseProm, socialProm]).then(function (fullInfo) {
     let baseInfo = fullInfo[0];
     let socialInfo = fullInfo[1];
 
@@ -188,7 +191,7 @@ function teamInfo(team) {
       let site = socialInfo[i].type.replace('-profile', '').replace('-channel', '');
       cleanedString += "\n" + cap(site) + ": http://www." + site + ".com/" + socialInfo[i].foreign_key
     }
-
+    
     return cleanedString;
   });
 }
@@ -210,6 +213,18 @@ function currentYear() {
 
 function inRange(x, min, max) {
   return ((x - min) * (x - max) <= 0);
+}
+
+function allInfo(team) {
+	let info = teamInfo(team);
+	let record = teamRecord(team);
+	let events = seasonEvents(team);
+	let awards = teamAwards(team);
+	let status = teamStatus(team);
+	
+	return Promise.all([info, record, events, awards, status]).then(function (combinedInfo) {
+		return combinedInfo[0] + "\n\n" + combinedInfo[1] + "\n\n" + combinedInfo[2] + "\n\n" + combinedInfo[3] + "\n" + combinedInfo[4];
+	});
 }
 
 class TBA {
